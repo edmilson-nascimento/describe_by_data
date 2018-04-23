@@ -8,4 +8,5 @@ A Classe utilizada será a `CL_ABAP_TYPEDESCR` _Runtime Type Services_. Dentro d
 
 Abaixo segue um exemplo da utilização.
 ```abap
+
 ```

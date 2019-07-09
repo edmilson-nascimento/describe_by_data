@@ -8,7 +8,33 @@ A Classe utilizada será a `CL_ABAP_TYPEDESCR` _Runtime Type Services_. Dentro d
 
 Abaixo segue um exemplo da utilização.
 ```abap
+    data:
+      ref_descr     type ref to cl_abap_structdescr,
+      line_out      type me->ty_out,
+      line_fieldcat type slis_fieldcat_alv,
+      pos           type i .
 
+    field-symbols:
+      <line> type abap_compdescr .
+
+    ref_descr ?= cl_abap_typedescr=>describe_by_data( line_out ) .
+
+    pos = 1 .
+
+    loop at ref_descr->components assigning <line> .
+
+      line_fieldcat-col_pos      = pos .
+      line_fieldcat-fieldname    = <line>-name .
+      line_fieldcat-outputlen    = <line>-length .
+      line_fieldcat-decimals_out = <line>-decimals .
+      line_fieldcat-datatype     = <line>-type_kind .
+
+      append line_fieldcat to me->fieldcat .
+      clear  line_fieldcat .
+
+      pos = pos + 1 .
+
+    endloop.
 ```
 
 Esse exemplo que coloquei foi usado para uma parte da montagem de `alv`, mas aproveitei parte de um código que estava pronto. A melhor utilização que fiz foi para criação de tabelas dinâmicas.

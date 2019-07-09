@@ -1,16 +1,7 @@
-*&---------------------------------------------------------------------*
-*& Report  YTESTE
-*&
-*&---------------------------------------------------------------------*
-*&
-*&
-*&---------------------------------------------------------------------*
-
-REPORT  YTESTE.
+report describe_by_data .
 
 tables:
   mara .
-
 
 class local definition .
 
@@ -137,8 +128,6 @@ class local implementation .
       endif .
 
     endif .
-
-
 
   endmethod .
 
@@ -310,3 +299,5 @@ start-of-selection .
   ).
 
   obj->show( ) .
+  
+  

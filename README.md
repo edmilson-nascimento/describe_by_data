@@ -10,3 +10,5 @@ Abaixo segue um exemplo da utilização.
 ```abap
 
 ```
+
+Esse exemplo que coloquei foi usado para uma parte da montagem de `alv`, mas aproveitei parte de um código que estava pronto. A melhor utilização que fiz foi para criação de tabelas dinâmicas.

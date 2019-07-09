@@ -53,7 +53,8 @@ class local definition .
   protected section .
 
     data:
-      out type tab_out .
+      out      type tab_out,
+      fieldcat type slis_t_fieldcat_alv .
 
   private section .
 
@@ -69,7 +70,7 @@ class local definition .
         !mara  type tab_mara
         !makt  type tab_makt .
 
-    methods fieldcat .
+    methods describe_by_data .
 
     methods alv .
 
@@ -97,22 +98,26 @@ class local implementation .
         makt  = makt
     ).
 
-*    fieldcat(
-*      exporting
-*
-*    ).
-
+    describe_by_data( ).
 
 
   endmethod .
 
   method show .
+
+    if lines( me->out ) eq 0 .
+    else .
+
+      me->alv( ) .
+
+    endif .
+
   endmethod .
 
   method search .
 
     refresh:
-      out, mara, makt .
+      mara, makt .
 
     select matnr pstat mtart brgew ntgew
       into table mara
@@ -181,32 +186,103 @@ class local implementation .
 
   endmethod .
 
-  method fieldcat .
+  method describe_by_data .
 
-*    data : it_details type abap_compdescr_tab.
-*    data : ref_descr type ref to cl_abap_structdescr.
-*
-*    ref_descr ?= cl_abap_typedescr=>describe_by_data( <dyn_wa> ).
-*    it_details[] = ref_descr->components[].
-*
-**   Write out data from table.
-*    loop at <dyn_table> into <dyn_wa>.
-*      do.
-*        assign component  sy-index  of structure <dyn_wa> to <dyn_field>.
-*        if sy-subrc <> 0.
-*          exit.
-*        endif.
-*        if sy-index = 1.
-*          write:/ <dyn_field>.
-*        else.
-*          write: <dyn_field>.
-*        endif.
-*      enddo.
-*    endloop.
+    refresh:
+      me->fieldcat .
+
+    data:
+      ref_descr     type ref to cl_abap_structdescr,
+      line_out      type me->ty_out,
+      line_fieldcat type slis_fieldcat_alv,
+      pos           type i .
+
+    field-symbols:
+      <line> type abap_compdescr .
+
+    ref_descr ?= cl_abap_typedescr=>describe_by_data( line_out ) .
+
+    pos = 1 .
+
+    loop at ref_descr->components assigning <line> .
+
+      line_fieldcat-col_pos      = pos .
+      line_fieldcat-fieldname    = <line>-name .
+      line_fieldcat-outputlen    = <line>-length .
+      line_fieldcat-decimals_out = <line>-decimals .
+      line_fieldcat-datatype     = <line>-type_kind .
+
+      append line_fieldcat to me->fieldcat .
+      clear  line_fieldcat .
+
+      pos = pos + 1 .
+
+    endloop.
+
 
   endmethod .
 
   method alv .
+
+    if lines( me->out ) eq 0 .
+    else .
+
+      call function 'REUSE_ALV_GRID_DISPLAY'
+        exporting
+*         i_interface_check                 = ' '
+*         i_bypassing_buffer                = ' '
+*         i_buffer_active                   = ' '
+          i_callback_program                = sy-repid
+*         i_callback_pf_status_set          = ' '
+*         i_callback_user_command           = ' '
+*         i_callback_top_of_page            = ' '
+*         i_callback_html_top_of_page       = ' '
+*         i_callback_html_end_of_list       = ' '
+*         i_structure_name                  =
+*         i_background_id                   = ' '
+*         i_grid_title                      =
+*         i_grid_settings                   =
+*         is_layout                         =
+          it_fieldcat                       = me->fieldcat
+*         it_excluding                      =
+*         it_special_groups                 =
+*         it_sort                           =
+*         it_filter                         =
+*         is_sel_hide                       =
+*         i_default                         = 'x'
+*         i_save                            = ' '
+*         is_variant                        =
+*         it_events                         =
+*         it_event_exit                     =
+*         is_print                          =
+*         is_reprep_id                      =
+*         i_screen_start_column             = 0
+*         i_screen_start_line               = 0
+*         i_screen_end_column               = 0
+*         i_screen_end_line                 = 0
+*         i_html_height_top                 = 0
+*         i_html_height_end                 = 0
+*         it_alv_graphics                   =
+*         it_hyperlink                      =
+*         it_add_fieldcat                   =
+*         it_except_qinfo                   =
+*         ir_salv_fullscreen_adapter        =
+*       importing
+*         e_exit_caused_by_caller           =
+*         es_exit_caused_by_user            =
+        tables
+          t_outtab                          = me->out
+        exceptions
+          program_error                     = 1
+          others                            = 2 .
+
+      if sy-subrc <> 0 .
+*       implement suitable error handling here
+      endif.
+
+
+    endif .
+
   endmethod .
 
 
